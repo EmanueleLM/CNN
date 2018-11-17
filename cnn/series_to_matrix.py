@@ -22,7 +22,9 @@ Returns:
     res:matrix, a (i, k_shape) matrix that can be used to cast convolution as SIMD multiply
                operation: i can be calculated as $\ceil{\dfrac{len(series)-k_shape+1}{striding}}$
 """
-def series_to_matrix(series, k_shape, striding):
+def series_to_matrix(series, 
+                     k_shape, 
+                     striding):
     
     res = np.zeros(shape=(int(np.ceil((series.shape[1]-k_shape+1)/striding)),
                           k_shape

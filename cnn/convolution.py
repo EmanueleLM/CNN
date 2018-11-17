@@ -21,7 +21,7 @@ Takes as input:
                the parameter is ignored if simd is set to True;
     simd:boolean, if True, the function is expected to receive a series in matrix
                  form, and iterates on each row which has the same dimension of
-                 the kernel. A reduction over the row axis is then applied to
+                 the kernel. A reduction over the column axis is then applied to
                  obtain the final result.
 """
 def conv_1d(series, 

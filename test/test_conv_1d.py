@@ -35,10 +35,12 @@ if __name__ == '__main__':
             # case where striding is 1 and we have a numpy counterpart function
             if s == 1:
                 
+                # test convolution, should rise exception if convolution is wrong
                 res_numpy = np.correlate(series[0,:], kernel[0,:])
                 np.testing.assert_almost_equal(res[0,:], res_numpy)
                 
-                # test SIMD convolution
+                # test SIMD convolution, should rise exception if convolution is
+                #  wrong
                 w_series = stm.series_to_matrix(series, kernel.shape[1], s)
                 w_res = conv.conv_1d(w_series, kernel, striding=s, simd=True)
                 np.testing.assert_almost_equal(w_res[0,:], res_numpy)
