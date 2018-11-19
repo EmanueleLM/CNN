@@ -44,3 +44,4 @@ if __name__ == '__main__':
                 w_series = stm.series_to_matrix(series, kernel.shape[1], s)
                 w_res = conv.conv_1d(w_series, kernel, striding=s, simd=True)
                 np.testing.assert_almost_equal(w_res[0,:], res_numpy)
+        

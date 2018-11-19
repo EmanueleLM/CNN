@@ -17,18 +17,22 @@ import numpy as np
 Takes as input:
     series:array, a (1,n) array;
     k_shape:int, specifies the kernel shape;
-    stride:int, specifies striding value.
+    stride:int, specifies striding value, i.e. how many values are skipped at a
+               new iteration;
+    ignore_last:boolean, specifies whether to ignore or not the last elements if 
+                        their dimension is lower than k_shape.
 Returns:
     res:matrix, a (i, k_shape) matrix that can be used to cast convolution as SIMD multiply
                operation: i can be calculated as $\ceil{\dfrac{len(series)-k_shape+1}{striding}}$
 """
 def series_to_matrix(series, 
                      k_shape, 
-                     striding):
+                     striding=1,
+                     ignore_last=True):
     
-    res = np.zeros(shape=(int(np.ceil((series.shape[1]-k_shape+1)/striding)),
-                          k_shape
-                      ))
+    res = np.zeros(shape=(int((series.shape[1]-k_shape)/striding)+1,
+                   k_shape)
+                      )
     j = 0
     for i in range(0, series.shape[1]-k_shape+1, striding):
         
