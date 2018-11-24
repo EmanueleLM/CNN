@@ -25,9 +25,9 @@ if __name__ == '__main__':
     inp = np.random.rand(1, 100)
     
     weights = np.random.rand(1, 10)
-    stride = 1
+    stride = np.random.randint(1,10)
     
-    # derivative by implementation
+    # derivative by implementation (chain rule)
     derivative_by_implementation = exp(inp, weights, stride)@stm.series_to_matrix(inp, weights.shape[1], stride)
     
     # derivative by definition
@@ -44,9 +44,5 @@ if __name__ == '__main__':
         derivative_by_def.append(np.sum((f_plus-f_minus)/(2*epsilon)))
         
     error = np.linalg.norm(derivative_by_def-derivative_by_implementation)
-    print("Error in estimating derivative of one layer convolution with implementation is ", error)
-
-    
-    
-    
-    
+    print("Error estimating derivative of one layer convolution with implementation is ", error)
+ 
