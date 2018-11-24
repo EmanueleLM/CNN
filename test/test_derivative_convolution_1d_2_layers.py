@@ -82,4 +82,4 @@ if __name__ == '__main__':
         derivative_by_def.append(np.sum((f_plus-f_minus)/(2*epsilon)))
         
     error = np.linalg.norm(derivative_by_def-derivative_by_implementation)
-    print("Error estimating derivative of two layers exponential convolution with implementation is ", error)
+    print("Error estimating derivative of two layers (linear+exponential) convolution with implementation is ", error)
