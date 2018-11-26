@@ -7,6 +7,10 @@ Created on Fri Nov 16 11:38:00 2018
 Neural network's module: instantiate and train a convolutional neural network
 """
 
+import layer_convolutional as layer_conv
+import layer_dense as layer_dense
+import utils as utils
+
 import numpy as np
 import zlib as zlib
 
@@ -29,10 +33,58 @@ class NN(object):
                  compress=False,
                  nn_id=None):
         
-        self.nn_id = np.random.randint(0, 1e+13) if nn_id is None else nn_id
+        self.layers = list()
+        self.n_inputs = blocks['n_inputs']
+        self.nn_id = np.random.randint(0, 1e+9) if nn_id is None else nn_id
+           
+        # append dense and convolutional layers to the net
+        blocks = blocks['layers']
+        for i in range(blocks.__len__()):
+                        
+            if blocks[i]['type'] == 'dense':
+                
+                # delegate the output's shape calculation to the net:
+                if blocks[i]['shape'][0] is None:
+                        
+                    if self.layers.__len__() != 0:
+                        output_len = blocks[i]['shape'][1] 
+                        
+                        blocks[i]['shape'] = (self.layers[i-1].output_len, output_len)
+                                             
+                    else:
+                        output_len = blocks[i]['shape'][1]
+                        blocks[i]['shape'] = (self.n_inputs, output_len)
+                    
+                    layer = layer_dense.Dense(shape=blocks[i]['shape'],
+                                              activation=blocks[i]['activation'],
+                                              output_len=output_len)
+                    self.layers.append(layer)
+                    
+                else:
+                    
+                    layer = layer_dense.Dense(shape=blocks[i]['shape'],
+                          activation=blocks[i]['activation'])
+                    self.layers.append(layer)
+                    
+            elif blocks[i]['type'] == 'conv':
+                
+                if self.layers.__len__() != 0:
+                    output_len = utils.conv_shape(self.layers[-1].output_len,
+                                                  blocks[i]['shape'][1],
+                                                  blocks[i]['stride'])
+                else:
+                    output_len = utils.conv_shape(self.n_inputs, blocks[i]['shape'][1], 
+                                                  blocks[i]['stride'])
+
+                layer = layer_conv.Conv(shape=blocks[i]['shape'], 
+                                     stride=blocks[i]['stride'], 
+                                     activation=blocks[i]['activation'],
+                                     output_len=output_len)
+                self.layers.append(layer)                   
         
-        for b in blocks:
-            pass;
+            else:
+                pass
+            
             
         if compress is True:
             
@@ -49,4 +101,23 @@ def NN_Compressed(object):
         if drop is True:
             
             del nn
+
+# Code demonstration by example: 
+#  abilitate this snippet iff you are sure what you are doing.
+verbose = True
+
+if verbose is True:
+    
+    net_blocks = {'n_inputs': 100, 
+                  'layers': [
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
+                          {'type': 'dense', 'activation': 'sigmoid', 'shape': (None, 30)},
+                          {'type': 'dense', 'activation': 'sigmoid', 'shape': (None, 1)}
+                          ]
+                  }
+    
+    net = NN(net_blocks)
+    
             
