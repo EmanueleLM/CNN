@@ -11,6 +11,7 @@ import layer_convolutional as layer_conv
 import layer_dense as layer_dense
 import utils as utils
 
+import sys as sys
 import numpy as np
 import zlib as zlib
 
@@ -83,12 +84,20 @@ class NN(object):
                 self.layers.append(layer)                   
         
             else:
+                
+                print("error: no type for the layer has been specified", file=sys.stderr)
                 pass
-            
-            
+                    
         if compress is True:
             
             return NN_Compressed(nn=self, drop=True)
+        
+    # activation of the neural network
+    def activation(self, input_):
+        
+        tmp = input_
+        for layer in self.layers:
+            tmp = layer.activation(tmp)
             
 def NN_Compressed(object):
     
@@ -108,16 +117,19 @@ verbose = True
 
 if verbose is True:
     
-    net_blocks = {'n_inputs': 100, 
+    net_blocks = {'n_inputs': 1000, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 2}, 
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
-                          {'type': 'dense', 'activation': 'sigmoid', 'shape': (None, 30)},
-                          {'type': 'dense', 'activation': 'sigmoid', 'shape': (None, 1)}
+                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 30)},
+                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 1)}
                           ]
                   }
     
     net = NN(net_blocks)
+    
+    # activate for a random input
+    net.activation(np.random.rand(1, 1000))
     
             
