@@ -91,13 +91,56 @@ class NN(object):
         if compress is True:
             
             return NN_Compressed(nn=self, drop=True)
+    
+    """    
+     Initialize the parameters of the net.
+     Takes as input:
+         parameters:list, is a list, one for each layer, that specifies the method and 
+          parameters to be used for that specific layer. If just one element is specified,
+          all the layer are initialized with that method/arguments.
+          Each entry in the parameter is a list composed by a method that is used to
+          initialize the i-th layer, and the parameters involved in the initialization.
+          Take as reference the module 'parameters_init.py'.
+          An example for a 3 layers neural network with the same initialization
+           method for all the layers will define parameters = ['uniform', p_1, p_2]
+           where p_1, p_2 are the parameters involved in the initialization: upper
+           and lower bounds for the unifrom function, in this case.
+           An example with 3 different initialiations is 
+            parameters = [['random'], ['uniform', -1., 1.], ['random']].
+    """
+    def init_parameters(self, parameters):
+        
+        if type(parameters[0]) != type(list()):
+            
+            iter_ = [parameters for _ in range(len(net_blocks['layers']))]
+        
+        else:
+            
+            iter_ = parameters
+                        
+        for i in range(len(iter_)):
+            
+            if len(iter_[i]) > 1:
+            
+                self.layers[i].init_parameters(iter_[i][0], iter_[i][1:])
+            
+            else:
+
+                self.layers[i].init_parameters(iter_[i][0])
+            
+            
+            
         
     # activation of the neural network
     def activation(self, input_):
         
         tmp = input_
+        
         for layer in self.layers:
+            
             tmp = layer.activation(tmp)
+        
+        return tmp
             
 def NN_Compressed(object):
     
@@ -123,13 +166,16 @@ if verbose is True:
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
                           {'type': 'dense', 'activation': 'linear', 'shape': (None, 30)},
-                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 1)}
+                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 2)}
                           ]
                   }
     
     net = NN(net_blocks)
     
-    # activate for a random input
-    net.activation(np.random.rand(1, 1000))
+    # initialize the parameters
+    net.init_parameters(['uniform', 0., 2.])
+    
+    # activate the net for a random input
+    output_ = net.activation(np.random.rand(1, 1000))
     
             
