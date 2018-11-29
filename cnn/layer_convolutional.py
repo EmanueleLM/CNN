@@ -9,6 +9,7 @@ Convolutional layer object creator
 
 import activations as act
 import convolution as conv
+import derivatives as der
 import parameters_init as p_init
 
 import numpy as np
@@ -26,6 +27,7 @@ class Conv(object):
         self.stride = stride
         # calculate output's length using the input length
         self.output_len = output_len
+        self.output = np.zeros(shape=(1, output_len))
         
     # initialize the layer's parameters from a dictionary of methods
     def init_parameters(self, method, parameters=None):
@@ -37,6 +39,7 @@ class Conv(object):
         else:
         
             self.weights = p_init.dict_parameters_init[method](self.weights, None, parameters)
+            
         
     # activation function
     def activation(self, input_):
@@ -45,4 +48,20 @@ class Conv(object):
         output = act.dict_activations[self.act](output)
         
         return output
+    
+    # compute partial derivative of the layer.
+    # if the input (input_) is not specified, considers as input the output defined
+    #  at self.output
+    # Returns the tuple (derivative wrt the output, weights): an 'orchestrator'
+    #  will manage to make the derivative of a whole network work, based on the 
+    #  output of this function, for each layer.
+    def derivative(self, input_=None):
+        
+        if input_ is not None:
+            
+            input_ = self.activation(input_)
+            
+        derivative = der.dict_derivatives[self.act](input_)
+        
+        return derivative, self.weights
     

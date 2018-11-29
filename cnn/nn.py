@@ -37,6 +37,13 @@ class NN(object):
         self.layers = list()
         self.n_inputs = blocks['n_inputs']
         self.nn_id = np.random.randint(0, 1e+9) if nn_id is None else nn_id
+        # initialize output and intermediate activations
+        self.output = None
+        self.activations = list()
+        # initialize (to zero) the number of outputs
+        self.output_len = 0
+        # initialize the derivative vector
+        self.derivatives = list()
            
         # append dense and convolutional layers to the net
         blocks = blocks['layers']
@@ -87,6 +94,9 @@ class NN(object):
                 
                 print("error: no type for the layer has been specified", file=sys.stderr)
                 pass
+        
+        # assign number of output
+        self.n_output = self.layers[-1].output_len
                     
         if compress is True:
             
@@ -130,17 +140,47 @@ class NN(object):
             
             
             
-        
-    # activation of the neural network
-    def activation(self, input_):
+    """   
+     Activation of the neural network:
+     Takes as input:
+         input_:numpy.array, the input used to activate each layer;
+         accumulate:boolean, specifies whether the output is the result of the
+                    last layer's computation, or if it is a list of all the net's
+                    activations.
+    """
+    def activation(self, input_, accumulate=False):
         
         tmp = input_
+        list_tmp = list()
         
         for layer in self.layers:
             
             tmp = layer.activation(tmp)
+            
+            if accumulate is True:
+                
+                list_tmp.append(tmp)
         
-        return tmp
+        # assign intermediate activations
+        if accumulate is True:
+            
+            self.activations = list_tmp
+        
+        # assign output
+        self.output = tmp
+    
+    # calculate partial derivative of each layer
+    def derivative(self, input_=None):
+        
+        list_tmp = list() 
+        tmp = input_
+        
+        for layer in self.layers:
+            
+            tmp = layer.derivative(tmp)[0]
+            list_tmp.append(tmp)
+        
+        self.derivatives = list_tmp
             
 def NN_Compressed(object):
     
@@ -160,11 +200,11 @@ verbose = True
 
 if verbose is True:
     
-    net_blocks = {'n_inputs': 1000, 
+    net_blocks = {'n_inputs': 100, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 1},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1},
                           {'type': 'dense', 'activation': 'linear', 'shape': (None, 30)},
                           {'type': 'dense', 'activation': 'linear', 'shape': (None, 2)}
                           ]
@@ -173,9 +213,13 @@ if verbose is True:
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', 0., 2.])
+    net.init_parameters(['uniform', -1., 1.])
     
+    input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input
-    output_ = net.activation(np.random.rand(1, 1000))
+    output_ = net.activation(input_, accumulate=True)
+    
+    # calculate partial derivative for each layer
+    net.derivative(input_)
     
             
