@@ -81,8 +81,14 @@ class Dense(object):
                                     output of this function, for each layer.
     """
     def derivative(self, input_=None):
-                           
-        derivative = der.dict_derivatives[self.act](input_)
+                   
+        if input_ is not None:
+            
+            derivative = der.dict_derivatives[self.act](input_)
+            
+        else:
+            
+            derivative = der.dict_derivatives[self.act](self.input_)
         
         return derivative, self.weights
     

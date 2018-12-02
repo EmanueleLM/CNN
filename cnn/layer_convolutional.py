@@ -67,6 +67,7 @@ class Conv(object):
         
         return output
     
+    
     """
      Compute the partial derivative of the layer.
      Takes as input:
@@ -82,7 +83,13 @@ class Conv(object):
     """
     def derivative(self, input_=None):
                    
-        derivative = der.dict_derivatives[self.act](input_)
+        if input_ is not None:
+            
+            derivative = der.dict_derivatives[self.act](input_)
+            
+        else:
+            
+            derivative = der.dict_derivatives[self.act](self.input_)
         
         return derivative, self.weights
     

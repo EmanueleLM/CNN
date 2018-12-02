@@ -179,10 +179,8 @@ class NN(object):
         if input_ is None:
                         
             for i in range(len(self.layers)):
-                
-                tmp = self.layers[i].input_
-                    
-                self.layers[i].derivative(tmp)[0]
+                                   
+                tmp = self.layers[i].derivative(input_=None)[0]
                 list_tmp.append(tmp)
             
             self.derivatives = list_tmp
@@ -195,9 +193,7 @@ class NN(object):
                     
                     tmp = input_
                 
-                else:
-                    
-                    tmp = self.layers[i].activation(tmp, accumulate=True)                 
+                tmp = self.layers[i].activation(tmp, accumulate=True)                 
                    
                 self.layers[i].derivative(tmp)[0]
                 list_tmp.append(tmp)
@@ -248,5 +244,5 @@ if verbose is True:
     
     # calculate partial derivative for each layer
     net.derivative(None)
-    
+        
             
