@@ -5,12 +5,14 @@ Created on Fri Nov 16 14:51:41 2018
 @author: Emanuele
 """
 
-import sys
-sys.path.append('../cnn')
 import convolution as conv
 import series_to_matrix as stm
 
 import numpy as np
+import sys
+
+sys.path.append('../cnn')
+
 
 if __name__ == '__main__':
     

@@ -15,6 +15,7 @@ import sys as sys
 import numpy as np
 import zlib as zlib
 
+
 class NN(object):
     
     """
@@ -101,6 +102,7 @@ class NN(object):
         if compress is True:
             
             return NN_Compressed(nn=self, drop=True)
+        
     
     """    
      Initialize the parameters of the net.
@@ -139,14 +141,14 @@ class NN(object):
                 self.layers[i].init_parameters(iter_[i][0])
             
             
-            
     """   
      Activation of the neural network:
      Takes as input:
          input_:numpy.array, the input used to activate each layer;
          accumulate:boolean, specifies whether the output is the result of the
                     last layer's computation, or if it is a list of all the net's
-                    activations.
+                    activations. Moreover, if accumulate is True, each layer stores
+                    the (intermediate) input that is used to generate the output.
     """
     def activation(self, input_, accumulate=False):
         
@@ -155,7 +157,7 @@ class NN(object):
         
         for layer in self.layers:
             
-            tmp = layer.activation(tmp)
+            tmp = layer.activation(tmp, accumulate)
             
             if accumulate is True:
                 
@@ -173,14 +175,35 @@ class NN(object):
     def derivative(self, input_=None):
         
         list_tmp = list() 
-        tmp = input_
         
-        for layer in self.layers:
+        if input_ is None:
+                        
+            for i in range(len(self.layers)):
+                
+                tmp = self.layers[i].input_
+                    
+                self.layers[i].derivative(tmp)[0]
+                list_tmp.append(tmp)
             
-            tmp = layer.derivative(tmp)[0]
-            list_tmp.append(tmp)
+            self.derivatives = list_tmp
         
-        self.derivatives = list_tmp
+        else:
+            
+            for i in range(len(self.layers)):
+                
+                if i == 0:
+                    
+                    tmp = input_
+                
+                else:
+                    
+                    tmp = self.layers[i].activation(tmp, accumulate=True)                 
+                   
+                self.layers[i].derivative(tmp)[0]
+                list_tmp.append(tmp)
+            
+            self.derivatives = list_tmp           
+        
             
 def NN_Compressed(object):
     
@@ -193,9 +216,13 @@ def NN_Compressed(object):
         if drop is True:
             
             del nn
+            
+            
+"""
+ Code demonstration by example: 
+  abilitate this snippet if you are sure what you are doing.
+"""
 
-# Code demonstration by example: 
-#  abilitate this snippet iff you are sure what you are doing.
 verbose = True
 
 if verbose is True:
@@ -217,9 +244,9 @@ if verbose is True:
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input
-    output_ = net.activation(input_, accumulate=True)
+    net.activation(input_, accumulate=True)
     
     # calculate partial derivative for each layer
-    net.derivative(input_)
+    net.derivative(None)
     
             

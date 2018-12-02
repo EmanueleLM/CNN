@@ -10,18 +10,23 @@ Activation functions: provides both the activations functions and the dictionary
 
 import numpy as np
 
+
 def linear(z):
     
     return z;
+
 
 def exp(z):
     
     return np.exp(z)
 
+
 def relu(z):
     
     z[z<=0] = 0
+    
     return z
+
 
 dict_activations = { 'linear': linear,
                      'exp': exp,

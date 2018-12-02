@@ -10,6 +10,7 @@ Parameters' initializaton functions: provides both the functions and the diction
 
 import numpy as np
 
+
 def uniform(weights, bias=None, args=None):
     
     if args is None:
@@ -41,6 +42,7 @@ def uniform(weights, bias=None, args=None):
             bias = np.random.uniform(args[0], args[1], size=bias.shape)
             
             return weights, bias
+        
 
 def random(weights, bias=None, args=None):
        

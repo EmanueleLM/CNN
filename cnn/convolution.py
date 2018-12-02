@@ -10,6 +10,7 @@ Implementation of 1-D convolution
 import numpy as np
 import sys as sys
 
+
 """
 Takes as input:
     series:array, shape is (1, n), where n is the number of entries in the series itself;

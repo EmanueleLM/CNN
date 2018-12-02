@@ -14,6 +14,7 @@ This function is employed, among the others, in the backpropagation phase to
 
 import numpy as np
 
+
 """
 Takes as input:
     series:array, a (1,n) array;

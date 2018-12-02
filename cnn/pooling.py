@@ -9,6 +9,7 @@ Implementation of pooling strategies
 
 import numpy as np
 
+
 """
 Takes as input:
     series:array, shape is (1, n), where n is the number of entries in the series itself;
