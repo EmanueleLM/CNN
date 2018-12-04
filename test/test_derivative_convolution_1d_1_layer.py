@@ -7,13 +7,13 @@ Created on Tue Nov 20 18:51:32 2018
 Test backpropagation for one layer of 1d-convolution
 """
 
-import convolution as conv
-import series_to_matrix as stm
-
 import numpy as np
 import sys
 
 sys.path.append('../cnn')
+
+import convolution as conv
+import series_to_matrix as stm
 
 
 # exponential activation function

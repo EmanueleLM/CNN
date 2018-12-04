@@ -11,6 +11,7 @@ import activations as act
 import derivatives as der
 import parameters_init as p_init
 
+import copy as cp
 import numpy as np
 
 
@@ -57,12 +58,12 @@ class Dense(object):
         
         if accumulate is True:
             
-            self.input_ = input_
+            self.input_ = cp.copy(input_)
             
         output = np.dot(input_, self.weights) + self.bias
         output = act.dict_activations[self.act](output)
         
-        self.output = output
+        self.output = cp.copy(output)
         
         return output
     
@@ -87,7 +88,7 @@ class Dense(object):
             derivative = der.dict_derivatives[self.act](input_)
             
         else:
-            
+
             derivative = der.dict_derivatives[self.act](self.input_)
         
         return derivative, self.weights

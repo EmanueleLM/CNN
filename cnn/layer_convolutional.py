@@ -12,6 +12,7 @@ import convolution as conv
 import derivatives as der
 import parameters_init as p_init
 
+import copy as cp
 import numpy as np
 
 
@@ -58,12 +59,12 @@ class Conv(object):
         
         if accumulate is True:
             
-            self.input_ = input_
+            self.input_ = cp.copy(input_)
         
         output = conv.conv_1d(input_, self.weights, self.stride)
         output = act.dict_activations[self.act](output)
         
-        self.output = output
+        self.output = cp.copy(output)
         
         return output
     

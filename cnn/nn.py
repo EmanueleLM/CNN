@@ -170,6 +170,7 @@ class NN(object):
         
         # assign output
         self.output = tmp
+        
     
     # calculate partial derivative of each layer
     def derivative(self, input_=None):
@@ -177,7 +178,7 @@ class NN(object):
         list_tmp = list() 
         
         if input_ is None:
-                        
+                                    
             for i in range(len(self.layers)):
                                    
                 tmp = self.layers[i].derivative(input_=None)[0]
@@ -186,7 +187,7 @@ class NN(object):
             self.derivatives = list_tmp
         
         else:
-            
+                        
             for i in range(len(self.layers)):
                 
                 if i == 0:
@@ -236,7 +237,7 @@ if verbose is True:
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1., 1.])
+    net.init_parameters(['uniform', 0., 1.])
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input

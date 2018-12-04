@@ -13,6 +13,8 @@ import sys
 
 sys.path.append('../cnn')
 
+import convolution as conv
+
 
 if __name__ == '__main__':
     

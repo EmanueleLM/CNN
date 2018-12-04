@@ -7,13 +7,13 @@ Created on Tue Nov 20 21:42:39 2018
 Test backpropagation for two layers of 1d-convolution, linear activation
 """
 
-import convolution as conv
-import series_to_matrix as stm
-
 import numpy as np
 import sys
 
 sys.path.append('../cnn')
+
+import convolution as conv
+import series_to_matrix as stm
 
 
 # linear activation function

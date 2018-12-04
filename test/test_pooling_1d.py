@@ -7,13 +7,15 @@ Created on Sun Nov 18 11:46:57 2018
 Test 1-dimensional pooling
 """
 
-import pooling as pool
-import series_to_matrix as stm
 
 import numpy as np
 import sys
 
 sys.path.append('../cnn')
+
+import convolution as conv
+import pooling as pool
+import series_to_matrix as stm
 
 
 if __name__ == '__main__':
