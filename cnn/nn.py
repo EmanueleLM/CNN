@@ -199,7 +199,15 @@ class NN(object):
                 self.layers[i].derivative(tmp)[0]
                 list_tmp.append(tmp)
             
-            self.derivatives = list_tmp           
+            self.derivatives = list_tmp     
+            
+    """
+     This function collects all the partial derivatives and manages to provide
+      for each parameter the correct value of the derivative of the loss function
+    """
+    def __orchestrate_derivatives(self):
+        
+        pass
         
             
 def NN_Compressed(object):
@@ -229,15 +237,15 @@ if verbose is True:
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 1},
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1},
-                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 30)},
-                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 2)}
+                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 30)},
+                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 2)}
                           ]
                   }
     
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', 0., 1.])
+    net.init_parameters(['uniform', -1., 1.])
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input

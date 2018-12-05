@@ -31,6 +31,8 @@ class Conv(object):
         # calculate output's length using the input length
         self.output_len = output_len
         self.output = np.zeros(shape=(1, output_len))
+        # layer's information
+        self.type = 'conv'
         
         
     # initialize the layer's parameters from a dictionary of methods
@@ -74,7 +76,10 @@ class Conv(object):
      Takes as input:
          input_:(np.array | None),  specifies the input for the layer. 
                 It can be None in case it has been previously stored in the 
-                layer's object self.input_.
+                layer's object self.input_. Please note that if the input is None
+                the output of the layer needs to be calculated in place, but the 
+                result is not stored (as it happens in activation function when
+                accumulate is set to True).
      Returns:
          (derivative, self.weights):(numpy.array, numpy.array), a tuple 
                                     (derivative wrt the output, weights): an 
@@ -86,11 +91,12 @@ class Conv(object):
                    
         if input_ is not None:
             
-            derivative = der.dict_derivatives[self.act](input_)
+            output = self.activation(input_)
+            derivative = der.dict_derivatives[self.act](output)
             
         else:
-            
-            derivative = der.dict_derivatives[self.act](self.input_)
+
+            derivative = der.dict_derivatives[self.act](self.output)
         
         return derivative, self.weights
     
