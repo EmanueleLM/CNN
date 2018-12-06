@@ -23,16 +23,22 @@ class Conv(object):
                  activation, 
                  stride, 
                  output_len):
-         
+        
+        # layer's information
+        self.type = 'conv'
+        
+        # layer's parameters
         self.weights = np.zeros(shape=shape)
         self.act = activation
         self.stride = stride
         self.input_ = None
+        
         # calculate output's length using the input length
         self.output_len = output_len
         self.output = np.zeros(shape=(1, output_len))
-        # layer's information
-        self.type = 'conv'
+        
+        # storage for the parameter's update
+        self.delta_weights = np.zeros(shape=shape)
         
         
     # initialize the layer's parameters from a dictionary of methods

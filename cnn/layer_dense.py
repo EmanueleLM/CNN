@@ -22,16 +22,24 @@ class Dense(object):
                  activation, 
                  output_len):
         
+        # layer's information
+        self.type = 'dense'
+        
+        # layer's parameters
         self.weights = np.zeros(shape=shape)
         self.bias = np.zeros(shape=(1, shape[1]))
         self.act = activation
         self.input_ = None
+        
         # set output's length
         self.output_len = output_len
+        
         # vector to store the output of the layer
         self.output = np.zeros(shape=(1, output_len))
-        # layer's information
-        self.type = 'dense'
+
+        # storage for the parameter's update
+        self.delta_weights = np.zeros(shape=shape)
+        self.delta_bias = np.zeros(shape=(1, shape[1]))
         
     
     # initialize the layer's parameters from a dictionary of methods

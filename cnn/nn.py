@@ -7,12 +7,15 @@ Created on Fri Nov 16 11:38:00 2018
 Neural network's module: instantiate and train a convolutional neural network
 """
 
+import derivatives_losses as d_loss
 import layer_convolutional as layer_conv
 import layer_dense as layer_dense
+import series_to_matrix as stm
 import utils as utils
 
-import sys as sys
+import copy as cp
 import numpy as np
+import sys as sys
 import zlib as zlib
 
 
@@ -38,11 +41,14 @@ class NN(object):
         self.layers = list()
         self.n_inputs = blocks['n_inputs']
         self.nn_id = np.random.randint(0, 1e+9) if nn_id is None else nn_id
+        
         # initialize output and intermediate activations
         self.output = None
         self.activations = list()
+        
         # initialize (to zero) the number of outputs
         self.output_len = 0
+        
         # initialize the derivative vector
         self.derivatives = list()
            
@@ -149,6 +155,8 @@ class NN(object):
                     last layer's computation, or if it is a list of all the net's
                     activations. Moreover, if accumulate is True, each layer stores
                     the (intermediate) input that is used to generate the output.
+     Returns:
+         numpy.array, the net's activation.
     """
     def activation(self, input_, accumulate=False):
         
@@ -170,6 +178,8 @@ class NN(object):
         
         # assign output
         self.output = tmp
+        
+        return self.output
         
     
     # calculate partial derivative of each layer
@@ -204,11 +214,84 @@ class NN(object):
     """
      This function collects all the partial derivatives and manages to provide
       for each parameter the correct value of the derivative of the loss function
+     Takes as input:
+         target:numpy.array, specifies the target;
+         loss:string, specifies the loss function used in the backpropagation phase;
+         optimizer:string, specifies the optimization method used in the backpropagation
+                   phase;
+         l_rate:float, learning rate;
+         input_:numpy.array, the input used to activate the net;
+         update:boolean, specifies whether the function that updates the net's
+                parameters has to be invoked. 
     """
-    def __orchestrate_derivatives(self):
+    def backpropagation(self, 
+                        target,
+                        loss, 
+                        optimizer, 
+                        l_rate, 
+                        input_=None, 
+                        update=False):
+               
+        # evaluate the loss' partial derivative
+        if input_ is None:
+            
+            delta_loss = d_loss.dict_derivatives_losses[loss](target, self.output)
         
-        pass
+        else:
+            
+            output = self.activation(input_)
+            delta_loss = d_loss.dict_derivatives_losses[loss](target, output)
         
+        # compute the activation for each layer
+        if input_ is not None:
+            
+            self.activation(input_, accumulate=True)
+        
+        # compute the derivative for each layer
+        #  it feeds the element self.derivatives with the derivatives for each layer
+        self.derivative(input_)
+        
+        # first phase: compute the partial derivative for each dense layers, 
+        #  from outers to inners.
+        tmp = delta_loss
+        
+        i = len(self.layers)-1  # controls the loop for each dense layer
+        while self.layers[i].type == 'dense' and i >= 0:
+        
+            tmp = np.multiply(tmp, self.derivatives[i])
+            self.layers[i].delta_bias = cp.copy(tmp)
+            tiled_input_ = self.layers[i].input_.repeat(tmp.shape[1], 0).T
+            self.layers[i].delta_weights = np.multiply(tiled_input_, tmp)
+            
+            tmp = np.dot(tmp, self.layers[i].weights.T)
+            
+            i -= 1
+        
+        # copy the element that connects dense to convolutional layers
+        connector_dense_to_conv = cp.copy(tmp)
+        
+        # copy the index to strart from: this is used to know, with little effort,
+        #  the index of the firt convolutional layer
+        j = i  
+        
+        # second phase: compute the partial derivative for each convolutional
+        #  layer, from inners to outers.
+        while self.layers[j].type == 'conv' and j >= 0:
+        
+            tmp = stm.series_to_matrix(self.layers[j].input_, 
+                                       self.layers[j].weights.shape[1], 
+                                       self.layers[j].stride)
+            
+            # if this is the first convoltional layer, connect it with the dense
+            #  layers
+            if i == j:
+                tmp = np.multiply(tmp, connector_dense_to_conv.T)
+                
+            tmp = np.multiply(tmp, self.derivatives[j].T)
+            self.layers[j].delta_weights= np.sum(tmp, axis=0)[np.newaxis,:]
+            tmp = np.dot(tmp, self.layers[j].weights.T)[np.newaxis,:]
+             
+            j -= 1
             
 def NN_Compressed(object):
     
@@ -245,7 +328,7 @@ if verbose is True:
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1., 1.])
+    net.init_parameters(['uniform', -1, 1.])
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input
@@ -253,5 +336,11 @@ if verbose is True:
     
     # calculate partial derivative for each layer
     net.derivative(None)
+    
+    # execute the backpropagation with the input that has been memorized previously
+    net.backpropagation(target=np.random.rand(1, 2), 
+                        loss='L2', 
+                        optimizer='ada', 
+                        l_rate=1e-3)
         
             
