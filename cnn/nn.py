@@ -267,7 +267,8 @@ class NN(object):
             
             i -= 1
         
-        # copy the element that connects dense to convolutional layers
+        # copy the element that connects dense to convolutional layers:
+        #  multiply it with the last partial derivative
         connector_dense_to_conv = cp.copy(tmp)
         
         # copy the index to strart from: this is used to know, with little effort,
@@ -278,22 +279,43 @@ class NN(object):
         #  layer, from inners to outers.
         while self.layers[j].type == 'conv' and j >= 0:
             
-            tmp = stm.series_to_matrix(self.layers[j].input_, 
-                                       self.layers[j].weights.shape[1], 
-                                       self.layers[j].stride).T
-                                       
-            for l in range(tmp.shape[0]):
+            # layers after the first one
+            if j != i:
                 
+                # execute a matrix_to_tensor operation for each layer before the current one
+                for l in range(j, i+1):
+                       
+                    if l != j:
+                        
+                        tmp = stm.matrix_to_tensor(tmp, self.layers[l].weights.shape[1], self.layers[l].stride)
+                        tmp = np.dot(tmp, self.layers[l].weights.T).squeeze()
+                        tmp = np.multiply(tmp, self.derivatives[l]).T
+                    
+                    # most internal operations, do not involve the weights since
+                    #  this is the layer that is differentiated wrt the weights
+                    #  themselves.
+                    else:
+                        
+                        tmp = stm.series_to_matrix(self.layers[j].input_, 
+                                                   self.layers[j].weights.shape[1], 
+                                                   self.layers[j].stride)      
+                        tmp = np.multiply(tmp, self.derivatives[l].T)
                 
-            
-            # if this is the first convoltional layer, connect it with the dense
-            #  layers
-            if i == j:
-                tmp = np.multiply(tmp, connector_dense_to_conv.T)
+                # connect with the dense layers and assign the parameters' update
+                self.layers[j].delta_weights = np.dot(connector_dense_to_conv, tmp)
                 
-            tmp = np.multiply(tmp, self.derivatives[j].T)
-            self.layers[j].delta_weights= np.sum(tmp, axis=0)[np.newaxis,:]
-            tmp = np.dot(tmp, self.layers[j].weights.T)[np.newaxis,:]
+                        
+                    
+            # first convolutional layer        
+            else:
+                
+                tmp = stm.series_to_matrix(self.layers[j].input_, 
+                                           self.layers[j].weights.shape[1], 
+                                           self.layers[j].stride) 
+                tmp = np.multiply(tmp, self.derivatives[j].T)
+                       
+                # connect with the dense layers and assign the parameters' update
+                self.layers[j].delta_weights = np.dot(connector_dense_to_conv, tmp)
              
             j -= 1
             
