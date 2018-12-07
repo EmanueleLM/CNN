@@ -257,7 +257,7 @@ class NN(object):
         
         i = len(self.layers)-1  # controls the loop for each dense layer
         while self.layers[i].type == 'dense' and i >= 0:
-        
+            
             tmp = np.multiply(tmp, self.derivatives[i])
             self.layers[i].delta_bias = cp.copy(tmp)
             tiled_input_ = self.layers[i].input_.repeat(tmp.shape[1], 0).T
@@ -277,10 +277,14 @@ class NN(object):
         # second phase: compute the partial derivative for each convolutional
         #  layer, from inners to outers.
         while self.layers[j].type == 'conv' and j >= 0:
-        
+            
             tmp = stm.series_to_matrix(self.layers[j].input_, 
                                        self.layers[j].weights.shape[1], 
-                                       self.layers[j].stride)
+                                       self.layers[j].stride).T
+                                       
+            for l in range(tmp.shape[0]):
+                
+                
             
             # if this is the first convoltional layer, connect it with the dense
             #  layers
@@ -292,6 +296,7 @@ class NN(object):
             tmp = np.dot(tmp, self.layers[j].weights.T)[np.newaxis,:]
              
             j -= 1
+            
             
 def NN_Compressed(object):
     

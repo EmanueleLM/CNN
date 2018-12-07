@@ -17,7 +17,7 @@ import numpy as np
 
 """
 Takes as input:
-    series:array, a (1,n) array;
+    series:numpy.array, a (1,n) array;
     k_shape:int, specifies the kernel shape;
     stride:int, specifies striding value, i.e. how many values are skipped at a
                new iteration.
@@ -36,5 +36,29 @@ def series_to_matrix(series, k_shape, striding=1):
         res[j] = series[:,i:i+k_shape]
         j += 1
     
+    return res
+
+
+"""
+Takes as input:
+    matrix:numpy.array, a (n,m) array;
+    k_shape:int, specifies the kernel shape;
+    stride:int, specifies striding value, i.e. how many values are skipped at a
+               new iteration.
+Returns:
+    res:matrix, a (i, j, k_shape) tensor, where i is the number of kernels, 
+        j is the length of each row after series_to_matrix is applied
+"""
+def matrix_to_tensor(matrix, k_shape, striding=1):
+    
+    res = np.zeros(shape=(matrix.shape[1], 
+                          int((matrix.shape[0]-k_shape)/striding)+1,
+                          k_shape)
+                    )
+    
+    for i in range(len(res)):
+        
+        res[i] = series_to_matrix(matrix[np.newaxis,:,i], k_shape, striding)
+        
     return res
     
