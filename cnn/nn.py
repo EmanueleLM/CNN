@@ -18,7 +18,7 @@ import numpy as np
 import sys as sys
 import zlib as zlib
 
-
+    
 class NN(object):
     
     """
@@ -130,7 +130,7 @@ class NN(object):
         
         if type(parameters[0]) != type(list()):
             
-            iter_ = [parameters for _ in range(len(net_blocks['layers']))]
+            iter_ = [parameters for _ in range(len(self.layers))]
         
         else:
             
@@ -338,15 +338,15 @@ def NN_Compressed(object):
   abilitate this snippet if you are sure what you are doing.
 """
 
-verbose = True
+verbose = False
 
 if verbose is True:
     
     net_blocks = {'n_inputs': 100, 
                   'layers': [
                           {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 1},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 30)},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 2)}
                           ]
@@ -355,7 +355,7 @@ if verbose is True:
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1, 1.])
+    net.init_parameters(['uniform', 0., 1.])
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input
