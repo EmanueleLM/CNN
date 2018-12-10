@@ -107,3 +107,13 @@ class Dense(object):
         
         return derivative, self.weights
     
+    
+    """
+     Update the parameters of the layer: til now only classic sgd is available
+    """
+    def parameters_update(self, optimizer, l_rate):
+        
+        self.weights -= l_rate*self.delta_weights
+        self.bias -= l_rate*self.delta_bias
+        
+    

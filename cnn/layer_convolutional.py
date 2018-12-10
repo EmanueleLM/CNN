@@ -105,4 +105,12 @@ class Conv(object):
             derivative = der.dict_derivatives[self.act](self.output)
         
         return derivative, self.weights
+   
+    
+    """
+     Update the parameters of the layer: til now only classic sgd is available
+    """
+    def parameters_update(self, optimizer, l_rate):
+        
+        self.weights -= l_rate*self.delta_weights
     

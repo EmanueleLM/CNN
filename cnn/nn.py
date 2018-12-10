@@ -18,7 +18,7 @@ import numpy as np
 import sys as sys
 import zlib as zlib
 
-
+    
 class NN(object):
     
     """
@@ -130,7 +130,7 @@ class NN(object):
         
         if type(parameters[0]) != type(list()):
             
-            iter_ = [parameters for _ in range(len(net_blocks['layers']))]
+            iter_ = [parameters for _ in range(len(self.layers))]
         
         else:
             
@@ -146,6 +146,41 @@ class NN(object):
 
                 self.layers[i].init_parameters(iter_[i][0])
             
+    """
+     Print a brief description of the net architechture.
+     Takes as input:
+         show_params:boolean, specifies whether to print or not the net parameters.
+    """
+    def __str__(self, show_params=False):
+        
+        res = ''
+        
+        for i in range(len(self.layers)):
+            
+            if self.layers[i].type == 'dense':
+                
+                res += "\n\nLayer " + str(i) + ": dense with weights of shape "
+                res += str(self.layers[i].weights.shape) + " and bias of shape "
+                res += str(self.layers[i].bias.shape)
+                res += "\nActivation: " + str(self.layers[i].act)
+                
+                if show_params is True:
+                    
+                    res += "\n=========Weights: \n" + str(self.layers[i].weights)
+                    res += "\n=========Bias: \n" + str(self.layers[i].bias)
+                
+            elif self.layers[i].type == 'conv':
+                                
+                res += "\n\nLayer " + str(i) + ": dense with weights of shape \n"
+                res += str(self.layers[i].weights.shape)
+                res += "Activation: " + str(self.layers[i].act)
+                
+                if show_params is True:
+                    
+                    res += "\n=========Weights: \n" + str(self.layers[i].weights)
+            
+        return res
+
             
     """   
      Activation of the neural network:
@@ -211,6 +246,14 @@ class NN(object):
             
             self.derivatives = list_tmp     
             
+    
+    def parameters_update(self, optimizer, l_rate):
+
+        for l in self.layers:
+            
+            l.parameters_update(optimizer, l_rate)
+    
+            
     """
      This function collects all the partial derivatives and manages to provide
       for each parameter the correct value of the derivative of the loss function
@@ -241,7 +284,7 @@ class NN(object):
             
             output = self.activation(input_)
             delta_loss = d_loss.dict_derivatives_losses[loss](target, output)
-        
+                    
         # compute the activation for each layer
         if input_ is not None:
             
@@ -319,6 +362,10 @@ class NN(object):
              
             j -= 1
             
+        if update is True:
+            
+            self.parameters_update(optimizer, l_rate)
+            
             
 def NN_Compressed(object):
     
@@ -338,15 +385,15 @@ def NN_Compressed(object):
   abilitate this snippet if you are sure what you are doing.
 """
 
-verbose = True
+verbose = False
 
 if verbose is True:
     
     net_blocks = {'n_inputs': 100, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 1},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 2}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 30)},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 2)}
                           ]
@@ -355,7 +402,7 @@ if verbose is True:
     net = NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1, 1.])
+    net.init_parameters(['uniform', 0., 1.])
     
     input_ = np.random.rand(1, net.n_inputs)
     # activate the net for a random input

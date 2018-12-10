@@ -21,14 +21,23 @@ def exp(z):
     return np.exp(z)
 
 
+def tanh(z):
+    
+    return (np.exp(z)-np.exp(-z))/(np.exp(z)+np.exp(-z))
+
 def relu(z):
     
-    z[z<=0] = 0
-    
-    return z
+    return np.where(z > 0, z, 0.)
+
+
+def leaky_relu(z):
+        
+    return np.where(z > 0, z, z * 0.01)
 
 
 dict_activations = { 'linear': linear,
                      'exp': exp,
-                     'relu': relu
+                     'tanh': tanh,
+                     'relu': relu,
+                     'leaky_relu': leaky_relu
         }

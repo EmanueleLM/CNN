@@ -21,6 +21,13 @@ def l2(target, prediction):
     return (target-prediction)**2
 
 
-dict_losses = { 'L1': l1,
-                     'L2': l2,
-        }
+# loss for testing purposes: just return the prediction
+def __none(target, prediction):
+    
+    return prediction
+
+
+dict_derivatives_losses = { 'L1': l1,
+                            'L2': l2,
+                            'none': __none 
+                           }

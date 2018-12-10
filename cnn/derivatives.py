@@ -8,7 +8,6 @@ Derivative of each activation function: provides both the activations functions
  and the dictionary to easy call them.
 """
 
-
 import numpy as np
 
 
@@ -19,18 +18,27 @@ def linear(z):
 
 def exp(z):
     
-    return np.exp(z)
+    return z
+
+
+def tanh(z):
+    
+    return np.multiply((1-z),(1+z));
 
 
 def relu(z):
     
-    z[z<=0] = 0.
-    z[z>0] = 1.
-    
-    return z
+    return np.where(z > 0, 1., 0.)
+
+
+def leaky_relu(z):
+        
+    return np.where(z > 0, 1., 0.01)
 
 
 dict_derivatives = { 'linear': linear,
                      'exp': exp,
-                     'relu': relu
+                     'tanh': tanh,
+                     'relu': relu,
+                     'leaky_relu': leaky_relu
         }
