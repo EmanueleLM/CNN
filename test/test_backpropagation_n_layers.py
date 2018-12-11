@@ -44,9 +44,10 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 24, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 1},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (2, 5), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 35)},                    
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 1)}
                           ]
@@ -175,31 +176,38 @@ if __name__ == '__main__':
         # convolutional layer
         elif net.layers[n].type == 'conv':
                                     
-            # bias                 
-            for i in range(net.layers[n].weights.shape[1]):
+            # weights                 
+            for i in range(net.layers[n].weights.shape[0]):
+                
+                for j in range(net.layers[n].weights.shape[1]):
             
-                weights_conv[n_conv][:,i] += 2*epsilon
-                
-                f_plus = np.sum(activation(input_,
-                                    weights_conv, stride_conv, act_conv, 
-                                    weights_dense, bias_dense, act_dense)
-                                )
-                
-                weights_conv[n_conv][:,i] -= 2*epsilon
-        
-                f_minus = np.sum(activation(input_,
-                                    weights_conv, stride_conv, act_conv, 
-                                    weights_dense, bias_dense, act_dense)
-                                )
-                
-                weights_conv[n_conv][:,i] += epsilon
-                                    
-                derivative_by_def.append((f_plus-f_minus)/(2*epsilon))
+                    weights_conv[n_conv][i,j] += 2*epsilon
+                    
+                    f_plus = np.sum(activation(input_,
+                                        weights_conv, stride_conv, act_conv, 
+                                        weights_dense, bias_dense, act_dense)
+                                    )
+                    
+                    weights_conv[n_conv][i,j] -= 2*epsilon
             
+                    f_minus = np.sum(activation(input_,
+                                        weights_conv, stride_conv, act_conv, 
+                                        weights_dense, bias_dense, act_dense)
+                                    )
+                    
+                    weights_conv[n_conv][i,j] += epsilon
+                                        
+                    derivative_by_def.append((f_plus-f_minus)/(2*epsilon))
+                
             n_conv += 1
 
     # evaluate error
-    derivative_by_def = np.array(derivative_by_def).flatten()
+    derivative_by_def = np.array(derivative_by_def).flatten()    
+    
+    # exclude first weights of convolution
+    conv_weights = np.sum(np.prod(l.weights.shape) for l in net.layers if l.type=='conv')
+    derivative_by_calc = derivative_by_calc[:conv_weights]
+    derivative_by_def = derivative_by_def[:conv_weights]
     
     error = np.linalg.norm((derivative_by_calc-derivative_by_def)/np.linalg.norm(derivative_by_calc))
     

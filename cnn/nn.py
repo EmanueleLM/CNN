@@ -362,7 +362,7 @@ class NN(object):
                     #  themselves.
                     else:
                         
-                        tmp = stm.series_to_tensor(self.layers[l].input_, 
+                        tmp = stm.series_to_tensor(img_tmp, 
                                                    self.layers[j].weights.shape, 
                                                    self.layers[j].stride)      
                         tmp = np.multiply(tmp, self.derivatives[l])
@@ -412,7 +412,7 @@ def NN_Compressed(object):
   abilitate this snippet if you are sure what you are doing.
 """
 
-verbose = True
+verbose = False
 
 if verbose is True:
     

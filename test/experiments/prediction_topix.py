@@ -21,13 +21,13 @@ import utils_topix as utils
 
 if __name__ == '__main__':
     
-    net_blocks = {'n_inputs': 5, 
+    net_blocks = {'n_inputs': 25, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 2), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 2), 'stride': 1},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 2), 'stride': 1},
-                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 35)},                    
-                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 1)}
+                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
+                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 35)},                    
+                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
                   }
     
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -.1, .1])
+    net.init_parameters(['uniform', -1e-4, 1e-4])
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     Y_test = (Y_test-np.min(Y_test))/(np.max(Y_test)-np.min(Y_test))   
     Y_valid = (Y_valid-np.min(Y_valid))/(np.max(Y_valid)-np.min(Y_valid))    
     
-    epochs_train = 25
+    epochs_train = 10
        
     # train
     for e in range(epochs_train):
@@ -73,7 +73,7 @@ if __name__ == '__main__':
             net.backpropagation(target=target, 
                                 loss='L2', 
                                 optimizer='sgd', 
-                                l_rate=5e-3,
+                                l_rate=1e-4,
                                 update=True)
                         
     # validation: calculate error and estimate its mean and variance
@@ -89,13 +89,13 @@ if __name__ == '__main__':
         
         net.activation(input_, accumulate=True)
         
-        # backrpop after prediction
-        net.derivative(None)                    
-        net.backpropagation(target=target, 
-                            loss='L2', 
-                            optimizer='sgd', 
-                            l_rate=5e-3,
-                            update=True)
+#        # backrpop after prediction
+#        net.derivative(None)                    
+#        net.backpropagation(target=target, 
+#                            loss='L2', 
+#                            optimizer='sgd', 
+#                            l_rate=5e-3,
+#                            update=True)
         
         errors_valid[i] = net.output - target
         
@@ -118,13 +118,13 @@ if __name__ == '__main__':
         net.activation(input_, accumulate=True)
         prediction = net.output
         
-        # backrpop after prediction
-        net.derivative(None)                    
-        net.backpropagation(target=target, 
-                            loss='L2', 
-                            optimizer='sgd', 
-                            l_rate=5e-2,
-                            update=True)
+#        # backrpop after prediction
+#        net.derivative(None)                    
+#        net.backpropagation(target=target, 
+#                            loss='L2', 
+#                            optimizer='sgd', 
+#                            l_rate=5e-2,
+#                            update=True)
         
         predictions[i] = prediction
         errors_test[i] = utils.gaussian_pdf(errors_test[i], 
