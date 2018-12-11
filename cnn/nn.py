@@ -84,10 +84,13 @@ class NN(object):
             elif blocks[i]['type'] == 'conv':
                 
                 if self.layers.__len__() != 0:
+                    
                     output_len = utils.conv_shape(self.layers[-1].output_len,
                                                   blocks[i]['shape'][1],
                                                   blocks[i]['stride'])
+                    
                 else:
+                    
                     output_len = utils.conv_shape(self.n_inputs, blocks[i]['shape'][1], 
                                                   blocks[i]['stride'])
 
@@ -171,9 +174,9 @@ class NN(object):
                 
             elif self.layers[i].type == 'conv':
                                 
-                res += "\n\nLayer " + str(i) + ": dense with weights of shape \n"
+                res += "\n\nLayer " + str(i) + ": dense with weights of shape "
                 res += str(self.layers[i].weights.shape)
-                res += "Activation: " + str(self.layers[i].act)
+                res += "\nActivation: " + str(self.layers[i].act)
                 
                 if show_params is True:
                     
@@ -322,6 +325,23 @@ class NN(object):
         #  layer, from inners to outers.
         while self.layers[j].type == 'conv' and j >= 0:
             
+            # if the input does not match the kernel's numbers (i.e. more 
+            #  kernels are used on a mono-dimensional input), tile the input
+            #  to the number of kernels.
+            cond_1 = self.layers[j].weights.shape[0] != self.layers[j].input_.shape[0]
+            cond_2 = self.layers[j].input_.shape[0] == 1
+            
+            if cond_1 and cond_2:
+                
+                img_tmp = np.repeat(self.layers[j].input_,
+                                    self.layers[j].weights.shape[0],
+                                    axis=0)
+            
+            else:
+                
+                img_tmp = self.layers[j].input_
+            
+            
             # layers after the first one
             if j != i:
                 
@@ -330,36 +350,43 @@ class NN(object):
                        
                     if l != j:
                         
-                        tmp = stm.matrix_to_tensor(tmp, self.layers[l].weights.shape[1], self.layers[l].stride)
-                        tmp = np.dot(tmp, self.layers[l].weights.T).squeeze()
-                        tmp = np.multiply(tmp, self.derivatives[l]).T
+                        tmp = stm.tensor_to_tensor(tmp, 
+                                                   (self.layers[l].weights.shape), 
+                                                   self.layers[l].stride)
+
+                        tmp = np.tensordot(tmp, self.layers[l].weights)
+                        tmp = np.multiply(tmp, self.derivatives[l])
                     
                     # most internal operations, do not involve the weights since
                     #  this is the layer that is differentiated wrt the weights
                     #  themselves.
                     else:
                         
-                        tmp = stm.series_to_matrix(self.layers[j].input_, 
-                                                   self.layers[j].weights.shape[1], 
+                        tmp = stm.series_to_tensor(self.layers[l].input_, 
+                                                   self.layers[j].weights.shape, 
                                                    self.layers[j].stride)      
-                        tmp = np.multiply(tmp, self.derivatives[l].T)
+                        tmp = np.multiply(tmp, self.derivatives[l])
                 
                 # connect with the dense layers and assign the parameters' update
-                self.layers[j].delta_weights = np.dot(connector_dense_to_conv, tmp)
+                self.layers[j].delta_weights = np.tensordot(connector_dense_to_conv, tmp.T[np.newaxis]).T
                 
                         
                     
             # first convolutional layer        
             else:
-                
-                tmp = stm.series_to_matrix(self.layers[j].input_, 
-                                           self.layers[j].weights.shape[1], 
+                   
+                tmp = stm.series_to_tensor(img_tmp, 
+                                           (self.layers[j].weights.shape), 
                                            self.layers[j].stride) 
-                tmp = np.multiply(tmp, self.derivatives[j].T)
+                    
+                tmp = np.multiply(tmp, self.derivatives[j])
                        
                 # connect with the dense layers and assign the parameters' update
-                self.layers[j].delta_weights = np.dot(connector_dense_to_conv, tmp)
-             
+                self.layers[j].delta_weights = np.dot(tmp, connector_dense_to_conv.T)
+                # take the first two dimensions (a dot from a 3-dim and 2-dim is performed)
+                self.layers[j].delta_weights = self.layers[j].delta_weights[:,:,0]
+                
+                
             j -= 1
             
         if update is True:
@@ -385,15 +412,15 @@ def NN_Compressed(object):
   abilitate this snippet if you are sure what you are doing.
 """
 
-verbose = False
+verbose = True
 
 if verbose is True:
     
     net_blocks = {'n_inputs': 100, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 5), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 4), 'stride': 2},
-                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 3},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (3, 5), 'stride': 2}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (3, 4), 'stride': 2},
+                          {'type': 'conv', 'activation': 'relu', 'shape': (2, 3), 'stride': 3},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 30)},
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 2)}
                           ]

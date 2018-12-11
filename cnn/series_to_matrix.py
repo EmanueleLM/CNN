@@ -28,8 +28,8 @@ Returns:
 def series_to_matrix(series, k_shape, striding=1):
     
     res = np.zeros(shape=(int((series.shape[1]-k_shape)/striding)+1,
-                   k_shape)
-                      )
+                   k_shape))
+    
     j = 0
     for i in range(0, series.shape[1]-k_shape+1, striding):
         
@@ -53,12 +53,86 @@ def matrix_to_tensor(matrix, k_shape, striding=1):
     
     res = np.zeros(shape=(matrix.shape[1], 
                           int((matrix.shape[0]-k_shape)/striding)+1,
-                          k_shape)
-                    )
+                          k_shape))
     
     for i in range(len(res)):
         
         res[i] = series_to_matrix(matrix[np.newaxis,:,i], k_shape, striding)
         
     return res
+
+
+"""
+Takes as input:
+    tensor:numpy.array, a (k_n, k_w, m) array;
+    k_shapes:tuple, specifies the kernel shapes kp_n, kp_w;
+    stride:int, specifies striding value, i.e. how many values are skipped at a
+               new iteration.
+Returns:
+    res:tensor, a (k_n, k_w, out, kp_n, kp_w) 5 dimensional tensor, where k_n, k_w
+         are the dimensions of the initial kernel (the ones to be preserved in 
+         derivative phase), out is the output dimensions after the convolution,
+         kp_n, kp_w are the dimensions of the kernel used in the convolution.
+"""
+def tensor_to_tensor(tensor, k_shapes, striding=1):
+    
+    res = np.zeros(shape=(tensor.shape[0], tensor.shape[1],
+                          int((tensor.shape[2]-k_shapes[1])/striding)+1,
+                          k_shapes[0], k_shapes[1]))
+    
+    for i in range(tensor.shape[0]):
+        
+        for j in range(tensor.shape[1]):
+            
+            for l in range(k_shapes[0]):
+                      
+                res[i,j,:,l] = series_to_matrix(tensor[np.newaxis,i,j], k_shapes[1], striding)
+        
+    return res
+
+
+"""
+Takes as input:
+    tensor:numpy.array, a (1, m) array;
+    k_shapes:tuple, specifies the kernel shapes k_n, k_w;
+    stride:int, specifies striding value, i.e. how many values are skipped at a
+               new iteration.
+Returns:
+    res:tensor, a (k_n, k_w, out) 3 dimensional tensor, where k_n, k_w
+         are the dimensions of the initial kernel (the ones to be preserved in 
+         derivative phase), out is the output dimensions after the convolution.
+"""
+def series_to_tensor(tensor, k_shapes, striding=1):
+
+    res = np.zeros(shape=(k_shapes[0], k_shapes[1],
+                          int((tensor.shape[1]-k_shapes[1])/striding)+1))
+        
+    for i in range(tensor.shape[0]):
+                      
+            res[i,:] = series_to_matrix(tensor[np.newaxis,i], k_shapes[1], striding).T
+        
+    return res    
+    
+                          
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     

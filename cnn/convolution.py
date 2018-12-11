@@ -55,6 +55,7 @@ def conv_1d(series,
     while (i*striding)+kernel.shape[1] <= series.shape[1]:
         
         res[:,i] = np.sum(np.multiply(series[:,i*striding:(i*striding)+kernel.shape[1]], kernel))
+        
         i += 1
     
     return res

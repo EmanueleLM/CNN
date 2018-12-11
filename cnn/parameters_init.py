@@ -75,6 +75,7 @@ def random(weights, bias=None, args=None):
             bias = np.random.rand(bias.shape[0], bias.shape[1])
             
             return weights, bias
+        
 
 dict_parameters_init = { 'uniform': uniform,
                          'random': random
