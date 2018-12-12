@@ -7,7 +7,6 @@ Created on Sun Dec  9 14:53:07 2018
 Predict TOPIX index
 """
 
-import copy as cp
 import numpy as np
 import sys
 
@@ -23,10 +22,8 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 25, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (25, 2), 'stride': 3}, 
-                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 35)},                    
+                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (55, 2), 'stride': 1}, 
+                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
                   }
@@ -35,14 +32,14 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1e-4, 1e-4])
+    net.init_parameters(['uniform', -1e-1, 1e-1])
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
                                                               filename='data/Topix_index.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.5)
+                                                              val_rel_percentage=.75)
     
     # normalize the dataset (max-min method)
     X_train = (X_train-np.min(X_train))/(np.max(X_train)-np.min(X_train))
@@ -52,7 +49,7 @@ if __name__ == '__main__':
     Y_test = (Y_test-np.min(Y_test))/(np.max(Y_test)-np.min(Y_test))   
     Y_valid = (Y_valid-np.min(Y_valid))/(np.max(Y_valid)-np.min(Y_valid))    
     
-    epochs_train = 10
+    epochs_train = 3
        
     # train
     for e in range(epochs_train):
@@ -73,7 +70,7 @@ if __name__ == '__main__':
             net.backpropagation(target=target, 
                                 loss='L2', 
                                 optimizer='sgd', 
-                                l_rate=1e-4,
+                                l_rate=1e-2,
                                 update=True)
                         
     # validation: calculate error and estimate its mean and variance
@@ -89,13 +86,13 @@ if __name__ == '__main__':
         
         net.activation(input_, accumulate=True)
         
-#        # backrpop after prediction
-#        net.derivative(None)                    
-#        net.backpropagation(target=target, 
-#                            loss='L2', 
-#                            optimizer='sgd', 
-#                            l_rate=5e-3,
-#                            update=True)
+        # backrpop after prediction
+        net.derivative(None)                    
+        net.backpropagation(target=target, 
+                            loss='L2', 
+                            optimizer='sgd', 
+                            l_rate=1e-3,
+                            update=True)
         
         errors_valid[i] = net.output - target
         
@@ -106,7 +103,7 @@ if __name__ == '__main__':
     # test   
     p_anomaly_test = np.zeros(shape=len(X_test))
     predictions = np.zeros(shape=len(X_test))
-    errors_test = cp.copy(errors_valid)
+    errors_test = np.zeros(shape=len(Y_test))
     i = 0
      
     for (input_, target) in zip(X_test, Y_test):
@@ -123,14 +120,14 @@ if __name__ == '__main__':
 #        net.backpropagation(target=target, 
 #                            loss='L2', 
 #                            optimizer='sgd', 
-#                            l_rate=5e-2,
+#                            l_rate=5e-1,
 #                            update=True)
         
         predictions[i] = prediction
-        errors_test[i] = utils.gaussian_pdf(errors_test[i], 
+        errors_test[i] = utils.gaussian_pdf(np.abs(prediction-target), 
                                              mean_valid, 
                                              var_valid)
-        anomalies = np.argwhere(errors_test < 1e-1)   
+        anomalies = np.argwhere(errors_test < 2e-1)   
                 
         i += 1
         
@@ -147,9 +144,11 @@ if __name__ == '__main__':
     ax1.set_ylabel('Change Point')
     plt.legend(loc='best')
     
-    for i in anomalies[:-net.n_inputs+1]:
-
-        plt.axvspan(i, i+1, color='yellow', alpha=0.5, lw=0)
+    for i in anomalies:
+        
+        if i <= len(Y_test)-net.n_inputs:
+            
+            plt.axvspan(i, i+1, color='yellow', alpha=0.5, lw=0)
 
     fig.tight_layout()
     plt.show()

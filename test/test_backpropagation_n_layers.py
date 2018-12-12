@@ -44,10 +44,9 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 24, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'relu', 'shape': (2, 5), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
-                          {'type': 'conv', 'activation': 'relu', 'shape': (10, 3), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (3, 5), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (2, 3), 'stride': 2}, 
+                          {'type': 'conv', 'activation': 'relu', 'shape': (1, 3), 'stride': 1}, 
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 35)},                    
                           {'type': 'dense', 'activation': 'relu', 'shape': (None, 1)}
                           ]
@@ -56,7 +55,7 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -.5, 1.])
+    net.init_parameters(['random'])
 
     # calculate partial derivative for each layer
     input_ = np.random.rand(1, net.n_inputs)
@@ -202,12 +201,7 @@ if __name__ == '__main__':
             n_conv += 1
 
     # evaluate error
-    derivative_by_def = np.array(derivative_by_def).flatten()    
-    
-    # exclude first weights of convolution
-    conv_weights = np.sum(np.prod(l.weights.shape) for l in net.layers if l.type=='conv')
-    derivative_by_calc = derivative_by_calc[:conv_weights]
-    derivative_by_def = derivative_by_def[:conv_weights]
+    derivative_by_def = np.array(derivative_by_def).flatten()
     
     error = np.linalg.norm((derivative_by_calc-derivative_by_def)/np.linalg.norm(derivative_by_calc))
     
