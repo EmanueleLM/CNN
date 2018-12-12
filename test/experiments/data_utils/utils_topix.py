@@ -9,6 +9,33 @@ Data utilities for TOPIX prediction
 
 import numpy as np
 import pandas as pd
+import scipy.stats as st
+
+
+"""
+ Measure randomness of the test:
+"""
+def random_test(input_, significance=5e-2):
+    
+    input_len = len(input_)
+    r = input_len
+    
+    ones = np.sum(input_)
+    zeros = input_len - ones
+    
+    r_hat = 2*(ones*zeros)/(ones+zeros) + 1 
+    s_r = ((2*ones*zeros)*(2*ones*zeros-ones-zeros))/((zeros+ones+1)*(ones+zeros)**2)
+    
+    z = (r - r_hat)/s_r
+    
+    # test is not random with this significance
+    if np.abs(z) > st.norm.ppf(1-significance/2):
+        
+        return False  
+    
+    else:
+        
+        return True
 
 """
  Gaussian pdf estimator.
