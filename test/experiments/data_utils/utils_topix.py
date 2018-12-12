@@ -13,7 +13,10 @@ import scipy.stats as st
 
 
 """
- Measure randomness of the test:
+ Measure randomness of the test.
+ Takes as input:
+     input_:numpy.array is the binary vector;
+     significance:float, the significance of the test.
 """
 def random_test(input_, significance=5e-2):
     
@@ -39,6 +42,10 @@ def random_test(input_, significance=5e-2):
 
 """
  Gaussian pdf estimator.
+ Takes as input:
+     x:numpy.array, the input vector;
+     mean:float, the mean of the gaussian distribution;
+     variance:float, the variance of the gaussian distribution.
 """
 def gaussian_pdf(x, mean, variance):
 
@@ -50,9 +57,8 @@ def gaussian_pdf(x, mean, variance):
 """
  Turn a series into a matrix (i.e. repeated batches).
 """
-def series_to_matrix(series,
-                     k_shape,
-                     striding=1):
+def series_to_matrix(series, k_shape, striding=1):
+    
     res = np.zeros(shape=(int((series.shape[0] - k_shape) / striding) + 1,
                           k_shape)
                    )
@@ -72,7 +78,12 @@ def series_to_matrix(series,
                   of data that has not been included in train (1-non_train_percentage) and assigned to validation
                   proportionally to val_rel_percentage.
 """
-def generate_batches(filename, window, mode='train-test', non_train_percentage=.7, val_rel_percentage=.5):
+def generate_batches(filename, 
+                     window, 
+                     mode='train-test', 
+                     non_train_percentage=.7, 
+                     val_rel_percentage=.5):
+    
     data = pd.read_csv(filename, delimiter=',', header=0)
     data = (data.iloc[:, 0]).values
 
