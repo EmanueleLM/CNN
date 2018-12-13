@@ -13,7 +13,7 @@ import scipy.stats as st
 
 
 """
- Measure randomness of the test.
+ Measure randomness of a binary string.
  Takes as input:
      input_:numpy.array is the binary vector;
      significance:float, the significance of the test.
@@ -27,9 +27,10 @@ def random_test(input_, significance=5e-2):
     zeros = input_len - ones
     
     r_hat = 2*(ones*zeros)/(ones+zeros) + 1 
-    s_r = ((2*ones*zeros)*(2*ones*zeros-ones-zeros))/((zeros+ones+1)*(ones+zeros)**2)
+    s_r = ((2*ones*zeros)*(2*ones*zeros-ones-zeros))/((zeros+ones-1)*(ones+zeros)**2)
     
     z = (r - r_hat)/s_r
+    print(r, r_hat, s_r, st.norm.ppf(1-significance/2))
     
     # test is not random with this significance
     if np.abs(z) > st.norm.ppf(1-significance/2):
@@ -39,6 +40,34 @@ def random_test(input_, significance=5e-2):
     else:
         
         return True
+    
+
+"""
+ Measure autocorrelation of a sequence with the lag test from Box and Jenkins, 1976.
+ Takes as input:
+     input_:numpy.array is the binary vector;
+     lag:int, the time-lag used to measure autocorrelation of the input sequence.
+     tolerance:float, the tolerance of the test.
+"""
+def autocorrelation_test(input_, lag, tolerance=1e-2):
+    
+    input_len = len(input_)
+    mean = input_.mean()
+    r_k_num = r_k_den = 0.
+    
+    for i in range(input_len-lag-1):
+        
+        r_k_num += (input_[i]-mean)*(input_[i+lag]-mean)
+        r_k_den += (input_[i]-mean)**2
+    
+    if np.abs(r_k_num/(r_k_den+1e-10)) <= tolerance/2:  # two tail test
+        
+        return True
+    
+    else:
+        
+        return False    
+    
 
 """
  Gaussian pdf estimator.

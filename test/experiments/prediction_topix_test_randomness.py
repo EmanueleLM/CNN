@@ -22,7 +22,8 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 25, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (55, 2), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (25, 2), 'stride': 2}, 
+                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (55, 2), 'stride': 2}, 
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
@@ -32,14 +33,14 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1e-1, 1e-1])
+    net.init_parameters(['uniform', .0, 1e-1])
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
                                                               filename='data/Topix_index.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.75)
+                                                              val_rel_percentage=.85)
     
     # normalize the dataset (max-min method)
     X_train = (X_train-np.min(X_train))/(np.max(X_train)-np.min(X_train))
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     Y_test = (Y_test-np.min(Y_test))/(np.max(Y_test)-np.min(Y_test))   
     Y_valid = (Y_valid-np.min(Y_valid))/(np.max(Y_valid)-np.min(Y_valid))    
     
-    epochs_train = 3
+    epochs_train = 10
        
     # train
     for e in range(epochs_train):

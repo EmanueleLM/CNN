@@ -40,7 +40,7 @@ if __name__ == '__main__':
                                                               filename='data/Topix_index.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.75)
+                                                              val_rel_percentage=.85)
     
     # normalize the dataset (max-min method)
     X_train = (X_train-np.min(X_train))/(np.max(X_train)-np.min(X_train))
@@ -99,12 +99,17 @@ if __name__ == '__main__':
         
         i += 1
     
-    mean_valid, var_valid = (errors_valid.mean(), errors_valid.var())
+    mean_valid = errors_valid.mean()
     
     # test   
     p_anomaly_test = np.zeros(shape=len(X_test))
     predictions = np.zeros(shape=len(X_test))
-    errors_test = np.zeros(shape=len(Y_test))
+    anomaly_chunk_size = 25
+    lag = 3  # correlation's lag
+    bin_errors_test = np.zeros(shape=anomaly_chunk_size)
+    anomalies = list()
+    tolerance = 2e-1 #  test significance
+
     i = 0
      
     for (input_, target) in zip(X_test, Y_test):
@@ -115,22 +120,28 @@ if __name__ == '__main__':
         
         net.activation(input_, accumulate=True)
         prediction = net.output
-        
-#        # backrpop after prediction
-#        net.derivative(None)                    
-#        net.backpropagation(target=target, 
-#                            loss='L2', 
-#                            optimizer='sgd', 
-#                            l_rate=5e-1,
-#                            update=True)
-        
+               
         predictions[i] = prediction
-        errors_test[i] = utils.gaussian_pdf(np.abs(prediction-target), 
-                                             mean_valid, 
-                                             var_valid)
-        anomalies = np.argwhere(errors_test < 2e-1)   
+        bin_errors_test[i%anomaly_chunk_size] = prediction
+        
+        # test autocorrelation of the prediciton: every chunk of anomaly_chunk_size
+        #  points is considered an anomaly if the related errors are not autocorrelated.
+        if (i % anomaly_chunk_size) == 0 and i > 0:
+            
+            test_result = utils.autocorrelation_test(bin_errors_test, 
+                                                     lag,
+                                                     tolerance)
+            bin_errors_test *= 0 #  reset the errors' vector for the next step
+            
+            # append the anomalies' indices
+            if test_result is True:
                 
-        i += 1
+                print("anomaly")
+                for j in range(i-anomaly_chunk_size, i):
+                
+                    anomalies.append(j)
+                        
+        i += 1    
         
     # plot results
     fig, ax1 = plt.subplots()
