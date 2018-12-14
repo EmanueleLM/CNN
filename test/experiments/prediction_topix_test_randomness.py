@@ -20,7 +20,7 @@ import utils_topix as utils
 
 if __name__ == '__main__':
     
-    net_blocks = {'n_inputs': 25, 
+    net_blocks = {'n_inputs': 10, 
                   'layers': [
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (25, 2), 'stride': 2}, 
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (55, 2), 'stride': 2}, 
@@ -33,31 +33,36 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', .0, 1e-1])
+    net.init_parameters(['uniform', -1e-1, 1e-1])
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
                                                               filename='data/Topix_index.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.85)
+                                                              val_rel_percentage=.7)
     
     # normalize the dataset (max-min method)
-    X_train = (X_train-np.min(X_train))/(np.max(X_train)-np.min(X_train))
-    X_test = (X_test-np.min(X_test))/(np.max(X_test)-np.min(X_test))
-    X_valid = (X_valid-np.min(X_valid))/(np.max(X_valid)-np.min(X_valid))
-    Y_train = (Y_train-np.min(Y_train))/(np.max(Y_train)-np.min(Y_train))
-    Y_test = (Y_test-np.min(Y_test))/(np.max(Y_test)-np.min(Y_test))   
-    Y_valid = (Y_valid-np.min(Y_valid))/(np.max(Y_valid)-np.min(Y_valid))    
+    v_max, v_min = (np.max(np.concatenate([Y_train, Y_test, Y_valid])),
+                    np.min(np.concatenate([Y_train, Y_test, Y_valid])))
     
-    epochs_train = 10
+    X_train = (X_train-v_min)/(v_max-v_min)
+    Y_train = (Y_train-v_min)/(v_max-v_min)   
+
+    X_valid = (X_valid-v_min)/(v_max-v_min)
+    Y_valid = (Y_valid-v_min)/(v_max-v_min)    
+
+    X_test = (X_test-v_min)/(v_max-v_min)
+    Y_test = (Y_test-v_min)/(v_max-v_min)   
+    
+    epochs_train = 25
        
     # train
     for e in range(epochs_train):
         
         print("Training epoch ", e+1)
         
-        for (input_, target) in zip(X_test, Y_train):
+        for (input_, target) in zip(X_train, Y_train):
             
             # format input and prediction
             input_ = input_[np.newaxis,:]

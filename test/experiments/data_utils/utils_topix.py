@@ -30,7 +30,6 @@ def random_test(input_, significance=5e-2):
     s_r = ((2*ones*zeros)*(2*ones*zeros-ones-zeros))/((zeros+ones-1)*(ones+zeros)**2)
     
     z = (r - r_hat)/s_r
-    print(r, r_hat, s_r, st.norm.ppf(1-significance/2))
     
     # test is not random with this significance
     if np.abs(z) > st.norm.ppf(1-significance/2):
