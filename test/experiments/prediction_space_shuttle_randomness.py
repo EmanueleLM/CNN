@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Dec  9 14:53:07 2018
+Created on Fri Dec 21 10:39:47 2018
 
 @author: Emanuele
-
-Predict TOPIX index
 """
 
 import numpy as np
@@ -22,9 +20,8 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 10, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 3), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (25, 2), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (15, 2), 'stride': 1},  
+                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (25, 2), 'stride': 1}, 
+                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (15, 2), 'stride': 1},                          
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
@@ -38,10 +35,10 @@ if __name__ == '__main__':
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
-                                                              filename='data/Topix_index.csv', 
+                                                              filename='data/space_shuttle_marotta_valve.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.7)
+                                                              val_rel_percentage=.5)
     
     # normalize the dataset (max-min method)
     v_max, v_min = (np.max(np.concatenate([Y_train, Y_test, Y_valid])),
@@ -56,7 +53,7 @@ if __name__ == '__main__':
     X_test = (X_test-v_min)/(v_max-v_min)
     Y_test = (Y_test-v_min)/(v_max-v_min)   
     
-    epochs_train = 10
+    epochs_train = 5
        
     # train
     for e in range(epochs_train):
@@ -99,10 +96,10 @@ if __name__ == '__main__':
     
     mean_valid = errors_valid.mean()
     
-    # test   
+    # test
     p_anomaly_test = np.zeros(shape=len(X_test))
     predictions = np.zeros(shape=len(X_test))
-    anomaly_chunk_size = 20
+    anomaly_chunk_size = 15
     bin_errors_test = np.zeros(shape=anomaly_chunk_size)
     anomalies = list()
     alpha = 2e-2  # test significance

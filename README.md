@@ -1,5 +1,5 @@
-## Convolutional Neural Networks for Time Series Analysis
-# Package to instantiate 1-D CNNs and train them on signals datasets
+# Convolutional Neural Networks for Time Series Analysis
+## Package to instantiate 1-D CNNs and train them on signals datasets
 
 ## Things implemented so far, 07/12/2018: ##
 

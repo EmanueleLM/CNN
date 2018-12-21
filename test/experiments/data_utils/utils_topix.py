@@ -59,6 +59,7 @@ def autocorrelation_test(input_, lag, tolerance=1e-2):
         r_k_num += (input_[i]-mean)*(input_[i+lag]-mean)
         r_k_den += (input_[i]-mean)**2
     
+    print(np.abs(r_k_num/(r_k_den+1e-10)), tolerance/2)
     if np.abs(r_k_num/(r_k_den+1e-10)) <= tolerance/2:  # two tail test
         
         return True
@@ -76,10 +77,11 @@ def autocorrelation_test(input_, lag, tolerance=1e-2):
      variance:float, the variance of the gaussian distribution.
 """
 def gaussian_pdf(x, mean, variance):
-
-    p_x = (1 / (2 * np.pi * variance) ** .5) * np.exp(-((x - mean) ** 2) / (2 * variance))
-
-    return p_x
+    
+    denom = (2*np.pi*variance)**.5
+    num = np.exp(-(float(x)-float(mean))**2/(2*variance))
+    
+    return num/denom
 
 
 """

@@ -20,7 +20,7 @@ import utils_topix as utils
 
 if __name__ == '__main__':
     
-    net_blocks = {'n_inputs': 5, 
+    net_blocks = {'n_inputs': 10, 
                   'layers': [
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (25, 2), 'stride': 2}, 
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (55, 2), 'stride': 2}, 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     net = nn.NN(net_blocks)
     
     # initialize the parameters
-    net.init_parameters(['uniform', -1e-1, 1e-1])
+    net.init_parameters(['uniform', -1e-2, 1e-1])
 
     # create the batches from topix dataset
     X_train, Y_train, X_valid, Y_valid, X_test, Y_test = utils.generate_batches(
@@ -91,14 +91,6 @@ if __name__ == '__main__':
         target = np.array([target])[np.newaxis,:]
         
         net.activation(input_, accumulate=True)
-        
-        # backrpop after prediction
-        net.derivative(None)                    
-        net.backpropagation(target=target, 
-                            loss='L2', 
-                            optimizer='sgd', 
-                            l_rate=1e-3,
-                            update=True)
         
         errors_valid[i] = net.output - target
         
