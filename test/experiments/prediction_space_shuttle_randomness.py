@@ -38,7 +38,8 @@ if __name__ == '__main__':
                                                               filename='data/space_shuttle_marotta_valve.csv', 
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
-                                                              val_rel_percentage=.5)
+                                                              val_rel_percentage=.5,
+                                                              temporal_difference=True)
     
     # normalize the dataset (max-min method)
     v_max, v_min = (np.max(np.concatenate([Y_train, Y_test, Y_valid])),
@@ -99,10 +100,10 @@ if __name__ == '__main__':
     # test
     p_anomaly_test = np.zeros(shape=len(X_test))
     predictions = np.zeros(shape=len(X_test))
-    anomaly_chunk_size = 15
+    anomaly_chunk_size = 100
     bin_errors_test = np.zeros(shape=anomaly_chunk_size)
     anomalies = list()
-    alpha = 2e-2  # test significance
+    alpha = 5e-3  # test significance
 
     i = 0
      
@@ -129,7 +130,9 @@ if __name__ == '__main__':
             # append the anomalies' indices
             if test_result is True:
                 
-                anomalies.append(i); anomalies.append(i-1); anomalies.append(i-2)
+                for j in range(i-anomaly_chunk_size, i):
+                    
+                    anomalies.append(j)
                         
         i += 1    
         
