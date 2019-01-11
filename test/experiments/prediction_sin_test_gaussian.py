@@ -38,7 +38,7 @@ if __name__ == '__main__':
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
                                                               val_rel_percentage=.9,
-                                                              temporal_difference=True)
+                                                              time_diffference=True)
     
     # normalize the dataset (max-min method)
     v_max, v_min = (np.max(np.concatenate([Y_train, Y_test, Y_valid])),
