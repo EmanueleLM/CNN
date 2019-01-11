@@ -38,20 +38,8 @@ if __name__ == '__main__':
                                                               window=net.n_inputs, mode='validation', 
                                                               non_train_percentage=.3,
                                                               val_rel_percentage=.5,
-                                                              time_diffference=True)
-    
-    # normalize the dataset (max-min method)
-    v_max, v_min = (np.max(np.concatenate([Y_train, Y_test, Y_valid])),
-                    np.min(np.concatenate([Y_train, Y_test, Y_valid])))
-    
-    X_train = (X_train-v_min)/(v_max-v_min)
-    Y_train = (Y_train-v_min)/(v_max-v_min)   
-
-    X_valid = (X_valid-v_min)/(v_max-v_min)
-    Y_valid = (Y_valid-v_min)/(v_max-v_min)    
-
-    X_test = (X_test-v_min)/(v_max-v_min)
-    Y_test = (Y_test-v_min)/(v_max-v_min)       
+                                                              normalize=True,
+                                                              time_diffference=True)       
 
     epochs_train = 5
        
