@@ -114,7 +114,7 @@ def generate_batches(filename,
                      non_train_percentage=.7, 
                      val_rel_percentage=.5,
                      normalize=False,
-                     time_diffference=False):
+                     time_difference=False):
     
     data = pd.read_csv(filename, delimiter=',', header=0)
     data = (data.iloc[:, 0]).values
@@ -125,7 +125,7 @@ def generate_batches(filename,
     
     # if the flag is enabled, turn the dataset into the variation of each time 
     #  step with the previous value (loose the firt sample)
-    if time_diffference is True:
+    if time_difference is True:
         
         data = data[:-1] - data[1:]
 

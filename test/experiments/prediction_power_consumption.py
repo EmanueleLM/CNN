@@ -19,12 +19,12 @@ import utils_topix as utils
 
 if __name__ == '__main__':
     
-    net_blocks = {'n_inputs': 5, 
+    net_blocks = {'n_inputs': 50, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (15, 2), 'stride': 3},                      
+#                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (15, 2), 'stride': 3},                      
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (30, 2), 'stride': 3},                      
-                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
-                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
+                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 75)},                    
+                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 1)}
                           ]
                   }
     

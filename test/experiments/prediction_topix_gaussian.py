@@ -43,7 +43,7 @@ if __name__ == '__main__':
                                                               non_train_percentage=.3,
                                                               val_rel_percentage=.8,
                                                               normalize=True,
-                                                              time_diffference=True)      
+                                                              time_difference=True)      
 
     epochs_train = 25
        

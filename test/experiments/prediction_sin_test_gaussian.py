@@ -21,8 +21,8 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 1, 
                   'layers': [ 
-                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 10)},                    
-                          {'type': 'dense', 'activation': 'relu', 'shape': (None, 1)}
+                          {'type': 'dense', 'activation': 'linear', 'shape': (None, 10)},                    
+                          {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
                   }
     
@@ -39,7 +39,7 @@ if __name__ == '__main__':
                                                               non_train_percentage=.3,
                                                               val_rel_percentage=.9,
                                                               normalize=True,
-                                                              time_diffference=True)       
+                                                              time_difference=True)       
 
     epochs_train = 25
        

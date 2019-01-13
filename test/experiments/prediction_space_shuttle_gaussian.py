@@ -21,8 +21,8 @@ if __name__ == '__main__':
     
     net_blocks = {'n_inputs': 10, 
                   'layers': [
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 3), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2}, 
+#                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 3), 'stride': 2}, 
+#                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2}, 
                           {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2},                           
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
@@ -42,7 +42,7 @@ if __name__ == '__main__':
                                                               non_train_percentage=.3,
                                                               val_rel_percentage=.5,
                                                               normalize=True,
-                                                              time_diffference=True)      
+                                                              time_difference=True)      
 
     epochs_train = 10
        
