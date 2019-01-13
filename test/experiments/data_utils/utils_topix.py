@@ -127,7 +127,7 @@ def generate_batches(filename,
     #  step with the previous value (loose the firt sample)
     if time_difference is True:
         
-        data = data[:-1] - data[1:]
+        data = data[1:] - data[:-1]
 
     if mode == 'train':
 

@@ -23,7 +23,7 @@ if __name__ == '__main__':
                   'layers': [
 #                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 3), 'stride': 2}, 
 #                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2}, 
-                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2},                           
+#                          {'type': 'conv', 'activation': 'leaky_relu', 'shape': (10, 2), 'stride': 2},                           
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 75)},                    
                           {'type': 'dense', 'activation': 'tanh', 'shape': (None, 1)}
                           ]
@@ -65,7 +65,7 @@ if __name__ == '__main__':
             net.backpropagation(target=target, 
                                 loss='L2', 
                                 optimizer='sgd', 
-                                l_rate=1e-2,
+                                l_rate=1e-3,
                                 update=True)
                         
     # validation: calculate error and estimate its mean and variance
